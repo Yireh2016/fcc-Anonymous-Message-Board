@@ -9,6 +9,13 @@ var apiRoutes         = require('./routes/api.js');
 var fccTestingRoutes  = require('./routes/fcctesting.js');
 var runner            = require('./test-runner');
 
+var MongoClient = require("mongodb").MongoClient;
+
+const uri = `mongodb://${process.env.DBUSER}:${
+  process.env.DBPASSWD
+}@ds063124.mlab.com:63124/fcc`;
+
+
 var app = express();
 
 app.use('/public', express.static(process.cwd() + '/public'));
@@ -17,6 +24,16 @@ app.use(cors({origin: '*'})); //For FCC testing purposes only
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+
+MongoClient.connect(uri,{ useUnifiedTopology: true }, (err, db) => {
+  if (err) console.log("Database error:  " + err);
+
+  console.log("Database connected");
+  
+
+  
+  
 
 //Sample front-end
 app.route('/b/:board/')
@@ -38,7 +55,7 @@ app.route('/')
 fccTestingRoutes(app);
 
 //Routing for API 
-apiRoutes(app);
+apiRoutes(app,db);
 
 //Sample Front-end
 
@@ -66,5 +83,7 @@ app.listen(process.env.PORT || 3000, function () {
     }, 1500);
   }
 });
+  
+})
 
 module.exports = app; //for testing
